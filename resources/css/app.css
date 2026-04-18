@@ -3,6 +3,116 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic color tokens - auto adjust to theme */
+:root {
+    /* Canvas - page floor */
+    --canvas: var(--color-slate-50);
+
+    /* Surface - floating islands (sidebar, cards, modals) */
+    --surface: var(--color-white);
+
+    /* Input - form fields (wells - slightly recessed) */
+    --well: var(--color-slate-200);
+
+    /* Text - softer for eye comfort */
+    --foreground: var(--color-slate-700);
+    --foreground-soft: var(--color-slate-500);
+    --foreground-muted: var(--color-slate-400);
+
+    /* Dividers */
+    --divider: var(--color-slate-200);
+
+    /* Interactive */
+    --hover: var(--color-slate-50);
+    --active: var(--color-slate-100);
+}
+
+.dark {
+    /* Canvas - page floor */
+    --canvas: var(--color-slate-900);
+
+    /* Surface - floating islands */
+    --surface: var(--color-slate-800);
+
+    /* Input - form fields (wells - slightly recessed) */
+    --well: var(--color-slate-950);
+
+    /* Text - softer for eye comfort */
+    --foreground: var(--color-slate-300);
+    --foreground-soft: var(--color-slate-400);
+    --foreground-muted: var(--color-slate-500);
+
+    /* Dividers */
+    --divider: var(--color-slate-700);
+
+    /* Interactive */
+    --hover: var(--color-slate-800);
+    --active: var(--color-slate-700);
+}
+
 @theme inline {
     --font-sans: Instrument Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Primary - Cyan */
+    --color-primary-50: var(--color-cyan-50);
+    --color-primary-100: var(--color-cyan-100);
+    --color-primary-200: var(--color-cyan-200);
+    --color-primary-300: var(--color-cyan-300);
+    --color-primary-400: var(--color-cyan-400);
+    --color-primary-500: var(--color-cyan-500);
+    --color-primary-600: var(--color-cyan-600);
+    --color-primary-700: var(--color-cyan-700);
+    --color-primary-800: var(--color-cyan-800);
+    --color-primary-900: var(--color-cyan-900);
+
+    /* Semantic Colors */
+    --color-success: var(--color-emerald-500);
+    --color-danger: var(--color-red-500);
+    --color-warning: var(--color-amber-500);
+
+    /* Theme-aware semantic tokens */
+    --color-canvas: var(--canvas);
+    --color-surface: var(--surface);
+    --color-well: var(--well);
+    --color-foreground: var(--foreground);
+    --color-foreground-soft: var(--foreground-soft);
+    --color-foreground-muted: var(--foreground-muted);
+    --color-divider: var(--divider);
+    --color-hover: var(--hover);
+    --color-active: var(--active);
+}
+
+/* Global focus styles: outline suppressed, ring sizing defined, color set locally */
+:focus-visible {
+    outline: none;
+}
+
+/* Default ring size and color for all focusable elements - override locally if different */
+:focus-visible {
+    --tw-ring-offset-width: 1px;
+    --tw-ring-width: 1px;
+    --tw-ring-color: var(--color-primary-600);
+    --tw-ring-shadow: 0 0 0 calc(var(--tw-ring-width) + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-divider);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-foreground-muted);
 }
