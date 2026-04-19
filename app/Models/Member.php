@@ -3,34 +3,52 @@
 namespace App\Models;
 
 use App\Traits\HasPersonName;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 class Member extends Model
 {
-    use HasFactory;
-    use HasPersonName;
+    use HasFactory, HasPersonName;
+
+    protected $appends = ['full_name', 'formal_name'];
 
     protected $fillable = [
         'phone',
         'address',
         'is_active',
-        'credit_limit',
         'balance',
         'share_capital',
         'tin_number',
-        'created_by',
-        'updated_by',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'credit_limit' => 'decimal:2',
-        'balance' => 'decimal:2',
-        'share_capital' => 'decimal:2',
-    ];
+    protected static function booted(): void
+    {
+        static::creating(function (Member $member): void {
+            $member->created_by = Auth::id();
+        });
+
+        static::updating(function (Member $member): void {
+            $member->updated_by = Auth::id();
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'balance' => 'decimal:2',
+            'share_capital' => 'decimal:2',
+        ];
+    }
+
+    protected function deletable(): Attribute
+    {
+        return Attribute::get(fn () => ! $this->sales()->exists() && ! $this->ledgers()->exists() && ! $this->payments()->exists() && ! $this->returns()->exists());
+    }
 
     public function ledgers(): HasMany
     {

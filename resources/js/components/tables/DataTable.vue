@@ -2,7 +2,7 @@
 import { useKeybinds } from '@/composables/useKeybinds';
 import { useQueryStrings } from '@/composables/useQueryStrings';
 import type { PaginationData } from '@/types/pagination';
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -230,22 +230,25 @@ const getAlignmentClass = (align?: string) => {
             :current-page="data.current_page"
         >
             <p class="text-sm text-foreground-soft">
-                Showing <span class="font-medium text-foreground">{{ data.data.length }}</span> of
+                Showing <span class="font-medium text-foreground">{{ data.from || 0 }}</span> to
+                <span class="font-medium text-foreground">{{ data.to || 0 }}</span> of
                 <span class="font-medium text-foreground">{{ data.total }}</span> results
             </p>
             <div class="flex items-center gap-0.5">
-                <component
-                    :is="link.url ? 'Link' : 'span'"
-                    v-for="link in data.links"
-                    :key="link.label"
-                    :href="link.url"
-                    :class="[
-                        'inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors',
-                        link.active ? 'bg-primary-600 text-white' : 'text-foreground-soft hover:bg-hover hover:text-foreground',
-                        !link.url && 'pointer-events-none opacity-40',
-                    ]"
-                    v-html="link.label"
-                />
+                <template v-for="link in data.links" :key="link.label">
+                    <Link
+                        v-if="link.url"
+                        :href="link.url as string"
+                        class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors"
+                        :class="link.active ? 'bg-primary-600 text-white' : 'text-foreground-soft hover:bg-hover hover:text-foreground'"
+                        v-html="link.label"
+                    />
+                    <span
+                        v-if="!link.url"
+                        class="pointer-events-none inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium opacity-40 transition-colors"
+                        v-html="link.label"
+                    />
+                </template>
             </div>
         </slot>
     </div>

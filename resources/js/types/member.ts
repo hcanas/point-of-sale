@@ -1,14 +1,14 @@
-import type { Auditable, Creatable, Timestamps } from './index';
+import type { Auditable, Creatable, PersonName, Timestamps } from './index';
 
-export interface Member extends Auditable, Timestamps {
+export interface Member extends Auditable, PersonName, Timestamps {
     id: number;
-    phone: string;
-    address: string;
+    phone: string | null;
+    address: string | null;
     is_active: boolean;
-    credit_limit: number;
     balance: number;
     share_capital: number;
-    tin_number: string;
+    tin_number: string | null;
+    deletable?: boolean;
 }
 
 export interface MemberLedger extends Creatable, Timestamps {

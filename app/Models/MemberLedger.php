@@ -6,6 +6,7 @@ use App\Enums\MemberLedgerType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class MemberLedger extends Model
 {
@@ -18,7 +19,6 @@ class MemberLedger extends Model
         'reference_type',
         'reference_id',
         'notes',
-        'created_by',
     ];
 
     protected $casts = [
@@ -26,6 +26,13 @@ class MemberLedger extends Model
         'amount' => 'decimal:2',
         'balance_after' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (MemberLedger $ledger): void {
+            $ledger->created_by = Auth::id();
+        });
+    }
 
     public function member(): BelongsTo
     {
