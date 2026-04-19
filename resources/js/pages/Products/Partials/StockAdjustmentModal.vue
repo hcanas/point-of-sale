@@ -7,10 +7,11 @@ import FormLabel from '@/components/forms/FormLabel.vue';
 import FormNumberInput from '@/components/forms/FormNumberInput.vue';
 import FormTextarea from '@/components/forms/FormTextarea.vue';
 import Modal from '@/components/ui/Modal.vue';
-import { store as stockMovementStore } from '@/routes/products/stock-movements';
-import { useForm } from '@inertiajs/vue3';
+import { store as stockMovementStore } from '@/routes/api/products/stock-movements';
+import type { Product } from '@/types/inventory';
+import axios from 'axios';
 import { ArrowDown, ArrowUp } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 
 const props = defineProps<{
     show: boolean;
@@ -20,7 +21,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    close: [];
+    close: [product?: Product];
 }>();
 
 type AdjustmentType = 'in' | 'out';
@@ -28,10 +29,13 @@ type AdjustmentType = 'in' | 'out';
 const adjustmentType = ref<AdjustmentType>('in');
 const inputQuantity = ref(0);
 
-const form = useForm({
+const form = reactive({
     quantity: 0,
     notes: '',
 });
+
+const errors = ref<Record<string, string>>({});
+const isProcessing = ref(false);
 
 const projectedStock = computed(() => {
     const signedQuantity = adjustmentType.value === 'in' ? inputQuantity.value : -inputQuantity.value;
@@ -43,7 +47,7 @@ const resetForm = () => {
     inputQuantity.value = 0;
     form.quantity = 0;
     form.notes = '';
-    form.clearErrors();
+    errors.value = {};
 };
 
 watch(
@@ -55,18 +59,29 @@ watch(
     },
 );
 
-const handleSubmit = () => {
-    form.clearErrors();
+const handleSubmit = async () => {
+    errors.value = {};
+    isProcessing.value = true;
 
     const finalQuantity = adjustmentType.value === 'in' ? inputQuantity.value : -inputQuantity.value;
     form.quantity = finalQuantity;
 
-    form.post(stockMovementStore.url(props.productId), {
-        onSuccess: () => {
-            emit('close');
-            resetForm();
-        },
-    });
+    try {
+        const response = await axios.post(stockMovementStore.url(props.productId), form);
+        emit('close', response.data as Product);
+        resetForm();
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            const errorData = error.response.data.errors;
+            for (const [field, messages] of Object.entries(errorData)) {
+                errors.value[field] = (messages as string[])[0];
+            }
+        } else if (error.response?.status === 422 || error.response?.data?.message) {
+            errors.value.quantity = error.response.data.message;
+        }
+    } finally {
+        isProcessing.value = false;
+    }
 };
 
 const close = () => emit('close');
@@ -130,20 +145,20 @@ const close = () => emit('close');
                 <FormLabel for="quantity" required>Quantity</FormLabel>
                 <FormNumberInput id="quantity" v-model="inputQuantity" :step="1" :min="1" variant="canvas" required />
                 <FormHelper> Enter the quantity to {{ adjustmentType === 'in' ? 'add to' : 'remove from' }} stock </FormHelper>
-                <FormError :message="form.errors.quantity" />
+                <FormError :message="errors.quantity" />
             </div>
 
             <div>
                 <FormLabel for="notes">Notes</FormLabel>
                 <FormTextarea id="notes" v-model="form.notes" variant="canvas" placeholder="Reason for adjustment..." :rows="3" />
-                <FormError :message="form.errors.notes" />
+                <FormError :message="errors.notes" />
             </div>
         </form>
 
         <template #footer>
-            <BtnSecondary type="button" @click="close" :disabled="form.processing">Cancel</BtnSecondary>
-            <BtnPrimary type="submit" @click="handleSubmit" :disabled="form.processing || projectedStock < 0">
-                {{ form.processing ? 'Adjusting...' : 'Adjust Stock' }}
+            <BtnSecondary type="button" @click="close" :disabled="isProcessing">Cancel</BtnSecondary>
+            <BtnPrimary type="submit" @click="handleSubmit" :disabled="isProcessing || projectedStock < 0">
+                {{ isProcessing ? 'Adjusting...' : 'Adjust Stock' }}
             </BtnPrimary>
         </template>
     </Modal>

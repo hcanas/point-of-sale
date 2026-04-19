@@ -8,4 +8,9 @@ class ProductFilterRequest extends FilterRequest
     {
         return ['name', 'barcode', 'stock', 'price'];
     }
+
+    protected function defaultSort(): string
+    {
+        return 'name';
+    }
 }

@@ -19,7 +19,11 @@ class ProductController extends Controller
                 ->where('name', 'like', "%{$request->search}%")
                 ->orWhere('barcode', 'like', "%{$request->search}%")
             )
-            ->orderBy($request->sortColumn(), $request->sortDirection())
+            ->when($request->sortColumn() === 'name', function ($query) use ($request) {
+                $query->orderByRaw("LOWER({$request->sortColumn()}) {$request->sortDirection()}");
+            }, function ($query) use ($request) {
+                $query->orderBy($request->sortColumn(), $request->sortDirection());
+            })
             ->paginate(10)
             ->onEachSide(1)
             ->withQueryString();

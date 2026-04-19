@@ -7,10 +7,10 @@ import FormInput from '@/components/forms/FormInput.vue';
 import FormLabel from '@/components/forms/FormLabel.vue';
 import FormNumberInput from '@/components/forms/FormNumberInput.vue';
 import Modal from '@/components/ui/Modal.vue';
-import { store, update } from '@/routes/products';
+import { store, update } from '@/routes/api/products';
 import type { Product } from '@/types/inventory';
-import { useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import axios from 'axios';
+import { reactive, ref, watch } from 'vue';
 
 type ProductFormData = Omit<Product, 'id' | 'stock' | 'created_at' | 'updated_at' | 'created_by' | 'updated_by'> & { id?: number };
 
@@ -20,7 +20,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    close: [];
+    close: [product?: Product];
 }>();
 
 const defaultFormValues: ProductFormData = {
@@ -32,13 +32,15 @@ const defaultFormValues: ProductFormData = {
     is_active: props.product?.is_active ?? true,
 };
 
-const form = useForm<ProductFormData>({ ...defaultFormValues });
+const form = reactive<ProductFormData>({ ...defaultFormValues });
+const errors = ref<Record<string, string>>({});
+const isProcessing = ref(false);
 
 const isEditing = () => props.product?.id !== undefined;
 
 const resetForm = () => {
     Object.assign(form, defaultFormValues);
-    form.clearErrors();
+    errors.value = {};
 };
 
 watch(
@@ -50,29 +52,28 @@ watch(
     },
 );
 
-const handleSubmit = () => {
-    form.clearErrors();
+const handleSubmit = async () => {
+    errors.value = {};
+    isProcessing.value = true;
 
-    const data = {
-        barcode: form.barcode,
-        name: form.name,
-        description: form.description || null,
-        stock_warning_level: form.stock_warning_level,
-        price: form.price,
-        is_active: form.is_active,
-    };
-
-    const options = {
-        onSuccess: () => {
-            emit('close');
-            if (!isEditing()) resetForm();
-        },
-    };
-
-    if (isEditing() && props.product?.id) {
-        form.put(update.url(props.product.id), { ...data, ...options });
-    } else {
-        form.post(store.url(), { ...data, ...options });
+    try {
+        if (isEditing() && props.product?.id) {
+            const response = await axios.put(update.url(props.product.id), form);
+            emit('close', response.data as Product);
+        } else {
+            const response = await axios.post(store.url(), form);
+            emit('close', response.data as Product);
+            resetForm();
+        }
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            const errorData = error.response.data.errors;
+            for (const [field, messages] of Object.entries(errorData)) {
+                errors.value[field] = (messages as string[])[0];
+            }
+        }
+    } finally {
+        isProcessing.value = false;
     }
 };
 
@@ -94,26 +95,26 @@ const close = () => emit('close');
             <div>
                 <FormLabel for="name" required>Product Name</FormLabel>
                 <FormInput id="name" v-model="form.name" type="text" variant="canvas" required />
-                <FormError :message="form.errors.name" />
+                <FormError :message="errors.name" />
             </div>
 
             <div>
                 <FormLabel for="description">Description</FormLabel>
                 <FormInput id="description" v-model="form.description" variant="canvas" />
-                <FormError :message="form.errors.description" />
+                <FormError :message="errors.description" />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <FormLabel for="barcode">Barcode</FormLabel>
                     <FormInput id="barcode" v-model="form.barcode" type="text" variant="canvas" />
-                    <FormError :message="form.errors.barcode" />
+                    <FormError :message="errors.barcode" />
                 </div>
 
                 <div>
                     <FormLabel for="price" required>Price</FormLabel>
                     <FormNumberInput id="price" v-model="form.price" :step="0.01" :min="0" variant="canvas" required />
-                    <FormError :message="form.errors.price" />
+                    <FormError :message="errors.price" />
                 </div>
             </div>
 
@@ -121,7 +122,7 @@ const close = () => emit('close');
                 <FormLabel for="stock_warning_level" required>Stock Warning Level</FormLabel>
                 <FormNumberInput id="stock_warning_level" v-model="form.stock_warning_level" :min="0" variant="canvas" required />
                 <FormHelper>Receive alerts when stock falls below this level</FormHelper>
-                <FormError :message="form.errors.stock_warning_level" />
+                <FormError :message="errors.stock_warning_level" />
             </div>
 
             <div class="flex items-start gap-2">
@@ -134,9 +135,9 @@ const close = () => emit('close');
         </form>
 
         <template #footer>
-            <BtnSecondary type="button" @click="close" :disabled="form.processing">Cancel</BtnSecondary>
-            <BtnPrimary type="submit" @click="handleSubmit" :disabled="form.processing">
-                {{ form.processing ? 'Saving...' : isEditing() ? 'Update' : 'Create' }}
+            <BtnSecondary type="button" @click="close" :disabled="isProcessing">Cancel</BtnSecondary>
+            <BtnPrimary type="submit" @click="handleSubmit" :disabled="isProcessing">
+                {{ isProcessing ? 'Saving...' : isEditing() ? 'Update' : 'Create' }}
             </BtnPrimary>
         </template>
     </Modal>

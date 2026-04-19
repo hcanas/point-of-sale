@@ -12,7 +12,7 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { show } from '@/routes/products';
 import type { Product } from '@/types/inventory';
 import type { PaginationData } from '@/types/pagination';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { Plus, Search, Upload } from 'lucide-vue-next';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import ProductCsvImportModal from './Partials/ProductCsvImportModal.vue';
@@ -71,8 +71,15 @@ const openModal = (product: Product | null = null) => {
     showModal.value = true;
 };
 
-const closeModal = () => {
+const closeModal = (product?: Product) => {
     showModal.value = false;
+
+    if (product) {
+        router.reload({ only: ['products'] });
+        showToast.value = true;
+        toastMessage.value = selectedProduct.value?.id ? 'Product updated successfully' : 'Product created successfully';
+    }
+
     selectedProduct.value = null;
 };
 
@@ -175,30 +182,10 @@ const closeImportModal = () => {
                             {{ value ? 'Active' : 'Inactive' }}
                         </span>
                     </template>
-                    <template #pagination="{ links, from, to, total }">
-                        <p class="text-sm text-foreground-soft">
-                            Showing <span class="font-medium text-foreground">{{ from }}-{{ to }}</span> of
-                            <span class="font-medium text-foreground">{{ total }}</span> results
-                        </p>
-                        <div class="flex items-center gap-0.5">
-                            <component
-                                :is="link.url ? 'Link' : 'span'"
-                                v-for="link in links"
-                                :key="link.label"
-                                :href="link.url"
-                                :class="[
-                                    'inline-flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors',
-                                    link.active ? 'bg-primary-600 text-white' : 'text-foreground-soft hover:bg-hover hover:text-foreground',
-                                    !link.url && 'pointer-events-none opacity-40',
-                                ]"
-                                v-html="link.label"
-                            />
-                        </div>
-                    </template>
                 </DataTable>
             </div>
 
-            <ProductFormModal :show="showModal" :product="selectedProduct ?? undefined" @close="closeModal" />
+            <ProductFormModal :show="showModal" :product="selectedProduct ?? undefined" @close="closeModal($event)" />
 
             <Toast v-if="showToast" :message="toastMessage" type="success" @close="hideToast" />
             <ProductCsvImportModal :show="showImportModal" max-width="lg" @close="closeImportModal" @imported="closeImportModal" />
