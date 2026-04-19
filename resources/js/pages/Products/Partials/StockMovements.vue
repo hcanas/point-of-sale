@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FormInput from '@/components/forms/FormInput.vue';
 import DataTable from '@/components/tables/DataTable.vue';
 import Badge from '@/components/ui/Badge.vue';
 import { useFormatter } from '@/composables/useFormatter';
