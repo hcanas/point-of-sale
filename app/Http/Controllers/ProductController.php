@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductFilterRequest;
-use App\Http\Requests\SaveProductRequest;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,13 +32,6 @@ class ProductController extends Controller
         ]);
     }
 
-    public function store(SaveProductRequest $request): RedirectResponse
-    {
-        Product::create($request->validated());
-
-        return redirect()->back()->with('success', 'Product created successfully.');
-    }
-
     public function show(Request $request, Product $product): Response
     {
         $movements = $product->stockMovements()
@@ -59,13 +51,6 @@ class ProductController extends Controller
             'product' => $product,
             'movements' => $movements,
         ]);
-    }
-
-    public function update(SaveProductRequest $request, Product $product): RedirectResponse
-    {
-        $product->update($request->validated());
-
-        return redirect()->back()->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product): RedirectResponse
