@@ -46,6 +46,9 @@ const handleClose = () => {
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Alt') {
+        e.preventDefault();
+    }
     if (e.key !== 'Escape') {
         e.stopPropagation();
     }
