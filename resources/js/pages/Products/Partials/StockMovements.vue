@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import FormInput from '@/components/forms/FormInput.vue';
 import DataTable from '@/components/tables/DataTable.vue';
+import Badge from '@/components/ui/Badge.vue';
 import { useFormatter } from '@/composables/useFormatter';
 import { useQueryStrings } from '@/composables/useQueryStrings';
 import type { StockMovement } from '@/types/inventory';
@@ -71,7 +71,7 @@ const getQuantityDisplay = (movement: StockMovement) => {
                 <span class="text-sm text-foreground">{{ formatDateTime(row.created_at) }}</span>
             </template>
             <template #cell-reference_type="{ value }">
-                <span v-if="value" class="rounded-full bg-canvas px-2 py-1 text-xs font-medium text-foreground-soft">{{ value }}</span>
+                <Badge v-if="value" variant="secondary">{{ value }}</Badge>
                 <span v-else class="text-foreground-muted">—</span>
             </template>
             <template #cell-quantity="{ row }">

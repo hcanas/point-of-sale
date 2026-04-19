@@ -3,6 +3,7 @@ import BtnPrimary from '@/components/buttons/BtnPrimary.vue';
 import FormInput from '@/components/forms/FormInput.vue';
 import DetailLink from '@/components/links/DetailLink.vue';
 import DataTable from '@/components/tables/DataTable.vue';
+import Badge from '@/components/ui/Badge.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
@@ -171,16 +172,9 @@ const closeImportModal = () => {
                         <span class="text-foreground">{{ formatCurrency(value) }}</span>
                     </template>
                     <template #cell-is_active="{ value }">
-                        <span
-                            :class="[
-                                'inline-flex rounded-full px-2 py-1 text-xs font-medium',
-                                value
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-                            ]"
-                        >
+                        <Badge :variant="value ? 'emerald' : 'red'">
                             {{ value ? 'Active' : 'Inactive' }}
-                        </span>
+                        </Badge>
                     </template>
                 </DataTable>
             </div>

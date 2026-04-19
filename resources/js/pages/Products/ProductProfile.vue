@@ -2,6 +2,7 @@
 import BtnSecondary from '@/components/buttons/BtnSecondary.vue';
 import ReturnLink from '@/components/links/ReturnLink.vue';
 import UserNameLink from '@/components/links/UserNameLink.vue';
+import Badge from '@/components/ui/Badge.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
@@ -110,39 +111,17 @@ useKeybinds([
                         <div class="min-w-0">
                             <h2 class="truncate text-lg font-semibold text-foreground">{{ product.name }}</h2>
                             <div class="mt-1.5 flex items-center gap-2">
-                                <span
-                                    :class="[
-                                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                                        product.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger',
-                                    ]"
-                                >
-                                    <span :class="['h-1.5 w-1.5 rounded-full', product.is_active ? 'bg-success' : 'bg-danger']"></span>
+                                <Badge :variant="product.is_active ? 'success' : 'danger'" :dot="true">
                                     {{ product.is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                                <span
-                                    :class="[
-                                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                                        product.stock === 0
-                                            ? 'bg-danger/10 text-danger'
-                                            : product.stock <= product.stock_warning_level
-                                              ? 'bg-warning/10 text-warning'
-                                              : 'bg-success/10 text-success',
-                                    ]"
+                                </Badge>
+                                <Badge
+                                    :variant="product.stock === 0 ? 'danger' : product.stock <= product.stock_warning_level ? 'warning' : 'success'"
+                                    :dot="true"
                                 >
-                                    <span
-                                        :class="[
-                                            'h-1.5 w-1.5 rounded-full',
-                                            product.stock === 0
-                                                ? 'bg-danger'
-                                                : product.stock <= product.stock_warning_level
-                                                  ? 'bg-warning'
-                                                  : 'bg-success',
-                                        ]"
-                                    ></span>
                                     {{
                                         product.stock === 0 ? 'Out of Stock' : product.stock <= product.stock_warning_level ? 'Low Stock' : 'In Stock'
                                     }}
-                                </span>
+                                </Badge>
                             </div>
                         </div>
                     </div>

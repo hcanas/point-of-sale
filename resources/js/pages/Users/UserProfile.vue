@@ -4,6 +4,7 @@ import BtnDangerOutline from '@/components/buttons/BtnDangerOutline.vue';
 import BtnSecondary from '@/components/buttons/BtnSecondary.vue';
 import ReturnLink from '@/components/links/ReturnLink.vue';
 import UserNameLink from '@/components/links/UserNameLink.vue';
+import Badge from '@/components/ui/Badge.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
@@ -96,21 +97,12 @@ useKeybinds([
                     <div class="min-w-0 flex-1">
                         <h2 class="truncate text-lg font-semibold text-foreground">{{ user.first_name }} {{ user.last_name }}</h2>
                         <div class="mt-1.5 flex items-center gap-2">
-                            <span
-                                :class="[
-                                    'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                                    user.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger',
-                                ]"
-                            >
-                                <span :class="['h-1.5 w-1.5 rounded-full', user.is_active ? 'bg-success' : 'bg-danger']"></span>
+                            <Badge :variant="user.is_active ? 'success' : 'danger'" :dot="true">
                                 {{ user.is_active ? 'Active' : 'Inactive' }}
-                            </span>
-                            <span
-                                class="inline-flex items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-xs font-medium text-foreground-soft"
-                            >
-                                <span class="h-1.5 w-1.5 rounded-full bg-primary-500"></span>
+                            </Badge>
+                            <Badge variant="secondary" :dot="true">
                                 {{ user.role }}
-                            </span>
+                            </Badge>
                         </div>
                     </div>
                 </div>

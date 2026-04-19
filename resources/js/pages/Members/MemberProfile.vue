@@ -4,6 +4,7 @@ import BtnDangerOutline from '@/components/buttons/BtnDangerOutline.vue';
 import BtnSecondary from '@/components/buttons/BtnSecondary.vue';
 import ReturnLink from '@/components/links/ReturnLink.vue';
 import UserNameLink from '@/components/links/UserNameLink.vue';
+import Badge from '@/components/ui/Badge.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
@@ -109,24 +110,12 @@ useKeybinds([
                         <div class="min-w-0">
                             <h2 class="truncate text-lg font-semibold text-foreground">{{ memberName }}</h2>
                             <div class="mt-1.5 flex items-center gap-2">
-                                <span
-                                    :class="[
-                                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                                        member.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger',
-                                    ]"
-                                >
-                                    <span :class="['h-1.5 w-1.5 rounded-full', member.is_active ? 'bg-success' : 'bg-danger']"></span>
+                                <Badge :variant="member.is_active ? 'success' : 'danger'" :dot="true">
                                     {{ member.is_active ? 'Active' : 'Inactive' }}
-                                </span>
-                                <span
-                                    :class="[
-                                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                                        member.balance > 0 ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success',
-                                    ]"
-                                >
-                                    <span :class="['h-1.5 w-1.5 rounded-full', member.balance > 0 ? 'bg-warning' : 'bg-success']"></span>
+                                </Badge>
+                                <Badge :variant="member.balance > 0 ? 'warning' : 'success'" :dot="true">
                                     {{ member.balance > 0 ? 'Has Balance' : 'No Balance' }}
-                                </span>
+                                </Badge>
                             </div>
                         </div>
                     </div>

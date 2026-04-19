@@ -2,6 +2,7 @@
 import FormInput from '@/components/forms/FormInput.vue';
 import UserNameLink from '@/components/links/UserNameLink.vue';
 import DataTable from '@/components/tables/DataTable.vue';
+import Badge from '@/components/ui/Badge.vue';
 import { useFormatter } from '@/composables/useFormatter';
 import { useQueryStrings } from '@/composables/useQueryStrings';
 import type { MemberLedger } from '@/types/member';
@@ -87,9 +88,7 @@ const getBalanceDisplay = (ledger: MemberLedger) => {
                 <span class="text-sm text-foreground">{{ formatDateTime(row.created_at) }}</span>
             </template>
             <template #cell-reference_type="{ value }">
-                <span v-if="value" class="rounded-full bg-canvas px-2 py-1 text-xs font-medium text-foreground-soft">{{
-                    getLedgerTypeLabel(value)
-                }}</span>
+                <Badge v-if="value" variant="secondary">{{ getLedgerTypeLabel(value) }}</Badge>
                 <span v-else class="text-foreground-muted">—</span>
             </template>
             <template #cell-amount="{ row }">

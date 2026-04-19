@@ -3,6 +3,7 @@ import BtnPrimary from '@/components/buttons/BtnPrimary.vue';
 import FormInput from '@/components/forms/FormInput.vue';
 import DetailLink from '@/components/links/DetailLink.vue';
 import DataTable from '@/components/tables/DataTable.vue';
+import Badge from '@/components/ui/Badge.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
@@ -162,11 +163,7 @@ const closeImportModal = () => {
                     <template #cell-last_name="{ row }">
                         <div class="flex items-center gap-2">
                             <DetailLink :href="buildDetailUrl(show.url(row.id))" tabindex="-1">{{ row.formal_name }}</DetailLink>
-                            <span
-                                v-if="isNewMember(row)"
-                                class="inline-flex rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wider text-primary-700 uppercase dark:bg-primary-900/30 dark:text-primary-400"
-                                >New</span
-                            >
+                            <Badge v-if="isNewMember(row)" variant="primary" size="sm">New</Badge>
                         </div>
                     </template>
                     <template #cell-balance="{ value }">
@@ -180,16 +177,9 @@ const closeImportModal = () => {
                         </span>
                     </template>
                     <template #cell-is_active="{ value }">
-                        <span
-                            :class="[
-                                'inline-flex rounded-full px-2 py-1 text-xs font-medium',
-                                value
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-                            ]"
-                        >
+                        <Badge :variant="value ? 'emerald' : 'red'">
                             {{ value ? 'Active' : 'Inactive' }}
-                        </span>
+                        </Badge>
                     </template>
                 </DataTable>
             </div>
