@@ -3,8 +3,8 @@ import NavLink from '@/components/links/NavLink.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import { useKeybinds } from '@/composables/useKeybinds';
 import { dashboard, logout } from '@/routes';
-import * as products from '@/routes/products';
-import * as users from '@/routes/users';
+import { index as productsIndex } from '@/routes/products';
+import { index as usersIndex } from '@/routes/users';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { Building2, LayoutDashboard, LogOut, Package, Receipt, Settings, ShoppingCart, Truck, UserCog, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -29,25 +29,30 @@ const iconMap = {
 };
 
 const menuItems = computed(() => [
-    { label: 'Dashboard', href: dashboard.url(), icon: 'layoutDashboard', keybind: 'Alt+1' },
-    { label: 'Point of Sale', href: '/pos', icon: 'shoppingCart', keybind: 'Alt+2' },
-    { label: 'Transactions', href: '/transactions', icon: 'receipt', keybind: 'Alt+3' },
-    { label: 'Products', href: products.index.url(), icon: 'package', keybind: 'Alt+4' },
-    { label: 'Purchases', href: '/purchases', icon: 'truck', keybind: 'Alt+5' },
-    { label: 'Members', href: '/members', icon: 'users', keybind: 'Alt+6' },
-    { label: 'Users', href: users.index.url(), icon: 'userCog', keybind: 'Alt+7' },
+    { label: 'Dashboard', href: dashboard.url(), icon: 'layoutDashboard', keybind: 'Alt+1', active: page.url.startsWith(dashboard.url()) },
+    { label: 'Point of Sale', href: '/pos', icon: 'shoppingCart', keybind: 'Alt+2', active: page.url.startsWith('/pos') },
+    { label: 'Transactions', href: '/transactions', icon: 'receipt', keybind: 'Alt+3', active: page.url.startsWith('/transactions') },
+    { label: 'Products', href: productsIndex.url(), icon: 'package', keybind: 'Alt+4', active: page.url.startsWith(productsIndex.url()) },
+    { label: 'Purchases', href: '/purchases', icon: 'truck', keybind: 'Alt+5', active: page.url.startsWith('/purchases') },
+    { label: 'Members', href: '/members', icon: 'users', keybind: 'Alt+6', active: page.url.startsWith('/members') },
+    { label: 'Users', href: usersIndex.url(), icon: 'userCog', keybind: 'Alt+7', active: page.url.startsWith(usersIndex.url()) },
 ]);
 
-const settingsItem = { label: 'Settings', href: '/settings', show: isAdmin.value };
+const settingsItem = computed(() => ({
+    label: 'Settings',
+    href: '/settings',
+    show: isAdmin.value,
+    active: page.url.startsWith('/settings'),
+}));
 
 useKeybinds([
     { key: '1', alt: true, handler: () => router.visit(dashboard.url()) },
     { key: '2', alt: true, handler: () => router.visit('/pos') },
     { key: '3', alt: true, handler: () => router.visit('/transactions') },
-    { key: '4', alt: true, handler: () => router.visit(products.index.url()) },
+    { key: '4', alt: true, handler: () => router.visit(productsIndex.url()) },
     { key: '5', alt: true, handler: () => router.visit('/purchases') },
     { key: '6', alt: true, handler: () => router.visit('/members') },
-    { key: '7', alt: true, handler: () => router.visit(users.index.url()) },
+    { key: '7', alt: true, handler: () => router.visit(usersIndex.url()) },
 ]);
 </script>
 
@@ -62,7 +67,7 @@ useKeybinds([
             <nav class="flex-1 overflow-y-auto py-4">
                 <ul class="space-y-1 px-2">
                     <li v-for="item in menuItems" :key="item.href">
-                        <NavLink :href="item.href" :icon="iconMap[item.icon as keyof typeof iconMap]" :keybind="item.keybind">
+                        <NavLink :href="item.href" :icon="iconMap[item.icon as keyof typeof iconMap]" :keybind="item.keybind" :active="item.active">
                             {{ item.label }}
                         </NavLink>
                     </li>
@@ -84,7 +89,9 @@ useKeybinds([
                     <ThemeToggle />
                 </div>
 
-                <NavLink v-if="settingsItem.show" :href="settingsItem.href" :icon="Settings" class="mb-2 py-2"> Settings </NavLink>
+                <NavLink v-if="settingsItem.show" :href="settingsItem.href" :icon="Settings" :active="settingsItem.active" class="mb-2 py-2">
+                    Settings
+                </NavLink>
 
                 <Link
                     :href="logout.url()"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import type { Component } from 'vue';
 
 interface Props {
@@ -9,10 +9,9 @@ interface Props {
     active?: boolean;
 }
 
-const props = defineProps<Props>();
-const page = usePage();
-
-const isActive = props.active ?? page.url.startsWith(props.href);
+const props = withDefaults(defineProps<Props>(), {
+    active: false,
+});
 </script>
 
 <template>
@@ -20,7 +19,7 @@ const isActive = props.active ?? page.url.startsWith(props.href);
         :href="href"
         :class="[
             'flex items-center rounded-md px-3 py-3 text-sm font-medium transition-colors outline-none',
-            isActive ? 'bg-primary-600 text-white shadow-sm' : 'text-foreground-soft hover:bg-hover hover:text-foreground',
+            active ? 'bg-primary-600 text-white shadow-sm' : 'text-foreground-soft hover:bg-hover hover:text-foreground',
         ]"
     >
         <component v-if="icon" :is="icon" class="h-5 w-5 shrink-0" />
