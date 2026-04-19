@@ -41,6 +41,14 @@ const hideToast = () => {
     showToast.value = false;
 };
 
+const isNewProduct = (product: Product) => {
+    if (!product.created_at) return false;
+    const createdAt = new Date(product.created_at);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    return hoursDiff < 24;
+};
+
 const searchInputRef = ref<InstanceType<typeof FormInput> | null>(null);
 const showModal = ref(false);
 const selectedProduct = ref<Product | null>(null);
@@ -76,7 +84,14 @@ const closeModal = (product?: Product) => {
     showModal.value = false;
 
     if (product) {
-        router.reload({ only: ['products'] });
+        if (!selectedProduct.value?.id) {
+            props.products.data.unshift(product);
+            props.products.total++;
+            if (props.products.from !== null) props.products.from = Math.min(props.products.from, 1);
+            if (props.products.to !== null) props.products.to++;
+        } else {
+            router.reload({ only: ['products'] });
+        }
         showToast.value = true;
         toastMessage.value = selectedProduct.value?.id ? 'Product updated successfully' : 'Product created successfully';
     }
@@ -151,9 +166,12 @@ const closeImportModal = () => {
                     :data="products"
                 >
                     <template #cell-name="{ row }">
-                        <DetailLink :href="buildDetailUrl(show.url(row.id))" tabindex="-1">
-                            {{ row.name }}
-                        </DetailLink>
+                        <div class="flex items-center gap-2">
+                            <DetailLink :href="buildDetailUrl(show.url(row.id))" tabindex="-1">
+                                {{ row.name }}
+                            </DetailLink>
+                            <Badge v-if="isNewProduct(row)" variant="primary" size="sm">New</Badge>
+                        </div>
                     </template>
                     <template #cell-barcode="{ value }">
                         <span class="text-foreground">{{ value }}</span>
