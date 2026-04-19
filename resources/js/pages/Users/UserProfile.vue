@@ -5,6 +5,7 @@ import BtnSecondary from '@/components/buttons/BtnSecondary.vue';
 import ReturnLink from '@/components/links/ReturnLink.vue';
 import UserNameLink from '@/components/links/UserNameLink.vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
+import Toast from '@/components/ui/Toast.vue';
 import { useFormatter } from '@/composables/useFormatter';
 import { useKeybinds } from '@/composables/useKeybinds';
 import { useQueryStrings } from '@/composables/useQueryStrings';
@@ -24,6 +25,13 @@ const showModal = ref(false);
 const showDeletePanel = ref(false);
 const deleteConfirmation = ref('');
 const deleteInputRef = ref<HTMLInputElement | null>(null);
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastType = ref<'success' | 'error'>('success');
+
+const hideToast = () => {
+    showToast.value = false;
+};
 
 const { formatDateTime } = useFormatter();
 const { getReturnUrl } = useQueryStrings();
@@ -34,8 +42,15 @@ const openEditModal = () => {
     showModal.value = true;
 };
 
-const closeModal = () => {
+const closeModal = (user?: User) => {
     showModal.value = false;
+
+    if (user && user.id) {
+        router.reload({ only: ['user'] });
+        showToast.value = true;
+        toastType.value = 'success';
+        toastMessage.value = 'User updated successfully';
+    }
 };
 
 const openDeletePanel = () => {
@@ -102,49 +117,30 @@ useKeybinds([
             </div>
 
             <div class="rounded-lg border border-divider bg-surface p-6">
-                <h3 class="text-base font-semibold text-foreground">User Details</h3>
-                <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     <div>
-                        <dt class="text-sm font-medium text-foreground-soft">User ID</dt>
-                        <dd class="mt-1 text-sm font-semibold text-foreground">{{ user.id }}</dd>
+                        <span class="text-xs font-medium text-foreground-soft">User ID</span>
+                        <p class="mt-1 text-lg font-semibold text-foreground">{{ user.id }}</p>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-foreground-soft">Username</dt>
-                        <dd class="mt-1 font-mono text-sm font-semibold text-foreground">{{ user.username }}</dd>
+                        <span class="text-xs font-medium text-foreground-soft">Username</span>
+                        <p class="mt-1 font-mono text-lg font-semibold text-foreground">{{ user.username }}</p>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-foreground-soft">First Name</dt>
-                        <dd class="mt-1 text-sm text-foreground">{{ user.first_name }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-foreground-soft">Last Name</dt>
-                        <dd class="mt-1 text-sm text-foreground">{{ user.last_name }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-foreground-soft">Middle Name</dt>
-                        <dd class="mt-1 text-sm text-foreground">
-                            <span v-if="user.middle_name">{{ user.middle_name }}</span>
-                            <span v-else class="text-foreground-muted italic">—</span>
-                        </dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-foreground-soft">Name Extension</dt>
-                        <dd class="mt-1 text-sm text-foreground">
-                            <span v-if="user.name_extension">{{ user.name_extension }}</span>
-                            <span v-else class="text-foreground-muted italic">—</span>
-                        </dd>
+                        <span class="text-xs font-medium text-foreground-soft">Role</span>
+                        <p class="mt-1 text-lg font-semibold text-foreground capitalize">{{ user.role }}</p>
                     </div>
                     <div v-if="user.creator">
-                        <dt class="text-sm font-medium text-foreground-soft">Created</dt>
-                        <dd class="mt-1 text-sm font-semibold text-foreground">{{ formatDateTime(user.created_at) }}</dd>
-                        <dd class="text-xs text-foreground-soft">by <UserNameLink :user="user.creator" :return-to="currentUrl" /></dd>
+                        <span class="text-xs font-medium text-foreground-soft">Created</span>
+                        <p class="mt-1 text-sm font-medium text-foreground">{{ formatDateTime(user.created_at) }}</p>
+                        <p class="text-xs text-foreground-soft">by <UserNameLink :user="user.creator" :return-to="currentUrl" /></p>
                     </div>
                     <div v-if="user.updater">
-                        <dt class="text-sm font-medium text-foreground-soft">Updated</dt>
-                        <dd class="mt-1 text-sm font-semibold text-foreground">{{ formatDateTime(user.updated_at) }}</dd>
-                        <dd class="text-xs text-foreground-soft">by <UserNameLink :user="user.updater" :return-to="currentUrl" /></dd>
+                        <span class="text-xs font-medium text-foreground-soft">Updated</span>
+                        <p class="mt-1 text-sm font-medium text-foreground">{{ formatDateTime(user.updated_at) }}</p>
+                        <p class="text-xs text-foreground-soft">by <UserNameLink :user="user.updater" :return-to="currentUrl" /></p>
                     </div>
-                </dl>
+                </div>
             </div>
 
             <div class="rounded-lg border bg-surface" :class="user.deletable ? 'border-danger' : 'border-divider'">
@@ -205,5 +201,6 @@ useKeybinds([
         </div>
 
         <UserFormModal :show="showModal" :user="user" @close="closeModal" />
+        <Toast v-if="showToast" :message="toastMessage" :type="toastType" @close="hideToast" />
     </AuthenticatedLayout>
 </template>

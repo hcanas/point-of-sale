@@ -16,6 +16,8 @@ class User extends Authenticatable
 {
     use HasFactory, HasPersonName, Notifiable;
 
+    protected $appends = ['full_name', 'formal_name'];
+
     protected $fillable = [
         'username',
         'password',

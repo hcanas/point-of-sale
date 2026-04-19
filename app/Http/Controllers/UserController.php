@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\SaveUserRequest;
 use App\Http\Requests\UserFilterRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +19,14 @@ class UserController extends Controller
                 ->orWhere('last_name', 'like', "%{$request->search}%")
                 ->orWhere('username', 'like', "%{$request->search}%")
             )
-            ->orderBy($request->sortColumn(), $request->sortDirection())
+            ->when($request->sortColumn() === 'last_name', function ($query) use ($request) {
+                $query->orderByRaw("LOWER({$request->sortColumn()}) {$request->sortDirection()}")
+                    ->orderByRaw("LOWER(first_name) {$request->sortDirection()}")
+                    ->orderByRaw("LOWER(middle_name) {$request->sortDirection()}")
+                    ->orderByRaw("LOWER(name_extension) {$request->sortDirection()}");
+            }, function ($query) use ($request) {
+                $query->orderBy($request->sortColumn(), $request->sortDirection());
+            })
             ->paginate(10)
             ->onEachSide(1)
             ->withQueryString();
@@ -30,7 +36,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(SaveUserRequest $request): RedirectResponse
     {
         User::create($request->validated());
 
@@ -47,7 +53,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(SaveUserRequest $request, User $user): RedirectResponse
     {
         $user->update($request->validated());
 

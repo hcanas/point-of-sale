@@ -20,9 +20,7 @@ const props = defineProps<{
     users: PaginationData;
 }>();
 
-const { buildDetailUrl, get, set, setRouterOptions } = useQueryStrings();
-
-setRouterOptions({ only: ['users'] });
+const { buildDetailUrl, get, set } = useQueryStrings();
 
 const search = computed({
     get: () => get('search') ?? '',
@@ -39,6 +37,14 @@ const toastMessage = ref('');
 
 const hideToast = () => {
     showToast.value = false;
+};
+
+const isNewUser = (user: User) => {
+    if (!user.created_at) return false;
+    const createdAt = new Date(user.created_at);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    return hoursDiff < 24;
 };
 
 watch(
@@ -67,13 +73,22 @@ const openModal = (user: User | null = null) => {
     showModal.value = true;
 };
 
-const closeModal = () => {
+const closeModal = (user?: User) => {
+    const wasEditing = selectedUser.value?.id !== undefined;
     showModal.value = false;
     selectedUser.value = null;
-};
 
-const handleSaved = () => {
-    setRouterOptions({ only: ['users'] });
+    if (user && !wasEditing) {
+        props.users.data.unshift(user);
+        props.users.total++;
+        if (props.users.from !== null) props.users.from = Math.min(props.users.from, 1);
+        if (props.users.to !== null) props.users.to++;
+
+        toastMessage.value = 'User created successfully.';
+        showToast.value = true;
+    }
+
+    nextTick(() => searchInputRef.value?.focus());
 };
 </script>
 
@@ -104,15 +119,22 @@ const handleSaved = () => {
             >
                 <DataTable
                     :columns="[
-                        { key: 'first_name', label: 'Name', sortable: true, width: 'fill' },
+                        { key: 'last_name', label: 'Name', sortable: true, width: 'fill' },
                         { key: 'username', label: 'Username', sortable: true },
                         { key: 'role', label: 'Role', sortable: true },
                         { key: 'is_active', label: 'Status' },
                     ]"
                     :data="users"
                 >
-                    <template #cell-first_name="{ row }">
-                        <DetailLink :href="buildDetailUrl(show.url(row.id))" tabindex="-1"> {{ row.first_name }} {{ row.last_name }} </DetailLink>
+                    <template #cell-last_name="{ row }">
+                        <div class="flex items-center gap-2">
+                            <DetailLink :href="buildDetailUrl(show.url(row.id))" tabindex="-1">{{ row.formal_name }}</DetailLink>
+                            <span
+                                v-if="isNewUser(row)"
+                                class="inline-flex rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wider text-primary-700 uppercase dark:bg-primary-900/30 dark:text-primary-400"
+                                >New</span
+                            >
+                        </div>
                     </template>
                     <template #cell-role="{ value }">
                         <span

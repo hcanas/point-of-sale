@@ -20,4 +20,12 @@ enum UserRole: string
             self::CASHIER => 'Cashier',
         };
     }
+
+    public static function nonAdmin(): array
+    {
+        return collect(self::cases())
+            ->reject(fn ($case) => $case === self::ADMIN)
+            ->map(fn ($case) => $case->value)
+            ->toArray();
+    }
 }

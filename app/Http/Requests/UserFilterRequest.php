@@ -6,6 +6,11 @@ class UserFilterRequest extends FilterRequest
 {
     protected function allowedSorts(): array
     {
-        return ['first_name', 'last_name', 'username', 'role', 'created_at'];
+        return ['last_name', 'username', 'role'];
+    }
+
+    protected function defaultSort(): string
+    {
+        return 'last_name';
     }
 }

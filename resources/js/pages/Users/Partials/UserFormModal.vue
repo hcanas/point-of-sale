@@ -1,127 +1,160 @@
 <script setup lang="ts">
 import BtnPrimary from '@/components/buttons/BtnPrimary.vue';
+import BtnSecondary from '@/components/buttons/BtnSecondary.vue';
 import FormError from '@/components/forms/FormError.vue';
 import FormInput from '@/components/forms/FormInput.vue';
 import FormLabel from '@/components/forms/FormLabel.vue';
 import Modal from '@/components/ui/Modal.vue';
-import { store, update } from '@/routes/users';
-import { router } from '@inertiajs/vue3';
-import { Save, X } from 'lucide-vue-next';
-import { reactive, watch } from 'vue';
+import { store, update } from '@/routes/api/users';
+import type { User } from '@/types';
+import axios from 'axios';
+import { reactive, ref, watch } from 'vue';
 
-interface User {
+type UserFormData = Pick<User, 'first_name' | 'middle_name' | 'last_name' | 'name_extension' | 'username' | 'role' | 'is_active'> & {
     id?: number;
-    first_name: string;
-    last_name: string;
-    username: string;
-    role: string;
-    is_active: boolean;
-}
+    password?: string;
+    password_confirmation?: string;
+};
 
 const props = defineProps<{
     show: boolean;
-    user?: User | null;
+    user?: UserFormData;
 }>();
 
 const emit = defineEmits<{
-    close: [];
+    close: [user?: User];
 }>();
 
-const form = reactive({
-    first_name: '',
-    last_name: '',
-    username: '',
+const defaultFormValues = (): UserFormData => ({
+    first_name: props.user?.first_name ?? '',
+    middle_name: props.user?.middle_name ?? '',
+    last_name: props.user?.last_name ?? '',
+    name_extension: props.user?.name_extension ?? '',
+    username: props.user?.username ?? '',
     password: '',
     password_confirmation: '',
-    role: 'cashier',
-    is_active: true,
+    role: props.user?.role ?? 'cashier',
+    is_active: props.user?.is_active ?? true,
 });
 
-const errors = reactive<Record<string, string>>({});
+const form = reactive<UserFormData>(defaultFormValues());
+const errors = ref<Record<string, string>>({});
 
 const isEditing = () => props.user?.id !== undefined;
 
 const resetForm = () => {
-    form.first_name = '';
-    form.last_name = '';
-    form.username = '';
-    form.password = '';
-    form.password_confirmation = '';
-    form.role = 'cashier';
-    form.is_active = true;
-    Object.keys(errors).forEach((key) => delete errors[key]);
+    Object.assign(form, defaultFormValues());
+    errors.value = {};
 };
 
 watch(
     () => props.show,
-    (show) => {
-        if (show) {
-            if (props.user) {
-                form.first_name = props.user.first_name;
-                form.last_name = props.user.last_name;
-                form.username = props.user.username;
-                form.role = props.user.role;
-                form.is_active = props.user.is_active;
-                form.password = '';
-                form.password_confirmation = '';
-            } else {
-                resetForm();
-            }
+    (isShown, wasShown) => {
+        if (isShown && !wasShown) {
+            Object.assign(form, defaultFormValues());
+        }
+        if (!isShown && wasShown) {
+            resetForm();
         }
     },
-    { immediate: true },
 );
 
-const handleSubmit = () => {
-    Object.keys(errors).forEach((key) => delete errors[key]);
+const isProcessing = ref(false);
 
-    const onError = (err: Record<string, string>) => {
-        Object.assign(errors, err);
-    };
+const handleSubmit = async () => {
+    errors.value = {};
+    isProcessing.value = true;
 
-    const onSuccess = () => {
-        emit('close');
-        resetForm();
-    };
-
-    if (isEditing() && props.user?.id) {
-        router.put(update.url(props.user.id), form, {
-            onError,
-            onSuccess,
-        });
-    } else {
-        router.post(store.url(), form, {
-            onError,
-            onSuccess,
-        });
+    try {
+        if (isEditing() && props.user?.id) {
+            const response = await axios.put(update.url(props.user.id), form);
+            emit('close', response.data as User);
+        } else {
+            const response = await axios.post(store.url(), form);
+            emit('close', response.data as User);
+            resetForm();
+        }
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            const errorData = error.response.data.errors;
+            for (const [field, messages] of Object.entries(errorData)) {
+                errors.value[field] = (messages as string[])[0];
+            }
+        }
+    } finally {
+        isProcessing.value = false;
     }
 };
 
-const handleClose = () => {
-    emit('close');
-};
+const close = () => emit('close');
 </script>
 
 <template>
-    <Modal :show="show" :title="isEditing() ? 'Edit User' : 'Add User'" @close="handleClose">
+    <Modal :show="show" max-width="lg" @close="close">
+        <template #header>
+            <div>
+                <h3 class="text-lg font-semibold text-foreground">{{ isEditing() ? 'Edit User' : 'Add User' }}</h3>
+                <p class="text-sm text-foreground-soft">
+                    {{ isEditing() ? 'Update user details below' : 'Enter user information to add a new user' }}
+                </p>
+            </div>
+        </template>
+
         <form @submit.prevent="handleSubmit" class="space-y-4">
+            <FormError :message="errors.full_name" />
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <FormLabel for="first_name" required>First Name</FormLabel>
                     <FormInput id="first_name" v-model="form.first_name" type="text" variant="canvas" required />
-                    <FormError v-if="errors.first_name">{{ errors.first_name }}</FormError>
+                    <FormError :message="errors.first_name" />
                 </div>
+
                 <div>
                     <FormLabel for="last_name" required>Last Name</FormLabel>
                     <FormInput id="last_name" v-model="form.last_name" type="text" variant="canvas" required />
-                    <FormError v-if="errors.last_name">{{ errors.last_name }}</FormError>
+                    <FormError :message="errors.last_name" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <FormLabel for="middle_name">Middle Name</FormLabel>
+                    <FormInput id="middle_name" v-model="form.middle_name" type="text" variant="canvas" />
+                    <FormError :message="errors.middle_name" />
+                </div>
+
+                <div>
+                    <FormLabel for="name_extension">Name Extension</FormLabel>
+                    <FormInput id="name_extension" v-model="form.name_extension" type="text" variant="canvas" />
+                    <FormError :message="errors.name_extension" />
                 </div>
             </div>
 
             <div>
                 <FormLabel for="username" required>Username</FormLabel>
                 <FormInput id="username" v-model="form.username" type="text" variant="canvas" required />
-                <FormError v-if="errors.username">{{ errors.username }}</FormError>
+                <FormError :message="errors.username" />
+            </div>
+
+            <div>
+                <FormLabel for="password" :required="!isEditing()">
+                    {{ isEditing() ? 'New Password (leave blank to keep current)' : 'Password' }}
+                </FormLabel>
+                <FormInput id="password" v-model="form.password" type="password" variant="canvas" :required="!isEditing()" />
+                <FormError :message="errors.password" />
+            </div>
+
+            <div>
+                <FormLabel for="password_confirmation" :required="!isEditing()">Confirm Password</FormLabel>
+                <FormInput
+                    id="password_confirmation"
+                    v-model="form.password_confirmation"
+                    type="password"
+                    variant="canvas"
+                    :required="!isEditing()"
+                />
+                <FormError :message="errors.password_confirmation" />
             </div>
 
             <div>
@@ -131,58 +164,32 @@ const handleClose = () => {
                     v-model="form.role"
                     class="block h-9 w-full rounded-md border border-divider bg-canvas px-3 text-sm text-foreground outline-none focus-visible:ring-primary-600"
                 >
-                    <option value="admin">Admin</option>
                     <option value="manager">Manager</option>
                     <option value="inventory">Inventory</option>
                     <option value="auditor">Auditor</option>
                     <option value="cashier">Cashier</option>
                 </select>
-                <FormError v-if="errors.role">{{ errors.role }}</FormError>
+                <FormError :message="errors.role" />
             </div>
 
-            <div>
-                <FormLabel for="password">
-                    {{ isEditing() ? 'New Password (leave blank to keep current)' : 'Password' }}
-                </FormLabel>
-                <FormInput id="password" v-model="form.password" type="password" variant="canvas" />
-                <FormError v-if="errors.password">{{ errors.password }}</FormError>
-            </div>
-
-            <div v-if="!isEditing() || form.password">
-                <FormLabel for="password_confirmation" :required="!isEditing()">Confirm Password</FormLabel>
-                <FormInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    variant="canvas"
-                    :required="!isEditing()"
-                />
-                <FormError v-if="errors.password_confirmation">{{ errors.password_confirmation }}</FormError>
-            </div>
-
-            <div class="flex items-center gap-2">
+            <div class="flex items-start gap-2">
                 <input
                     id="is_active"
                     v-model="form.is_active"
                     type="checkbox"
-                    class="h-4 w-4 rounded border-divider text-primary-600 focus:ring-primary-600"
+                    class="mt-0.5 h-4 w-4 rounded border-divider text-primary-600 focus:ring-primary-600"
                 />
-                <FormLabel for="is_active" class="!mt-0">Active</FormLabel>
+                <div class="flex flex-col">
+                    <FormLabel for="is_active" class="!mt-0">Active</FormLabel>
+                    <span class="text-xs text-foreground-soft">Inactive users won't be able to access the system</span>
+                </div>
             </div>
         </form>
 
         <template #footer>
-            <button
-                type="button"
-                class="inline-flex h-9 items-center gap-2 rounded-md border border-divider bg-surface px-4 text-sm font-medium text-foreground hover:bg-hover"
-                @click="handleClose"
-            >
-                <X class="h-4 w-4" />
-                Cancel
-            </button>
-            <BtnPrimary type="button" @click="handleSubmit">
-                <Save class="h-4 w-4" />
-                {{ isEditing() ? 'Update' : 'Create' }}
+            <BtnSecondary type="button" @click="close" :disabled="isProcessing">Cancel</BtnSecondary>
+            <BtnPrimary type="submit" @click="handleSubmit" :disabled="isProcessing">
+                {{ isProcessing ? 'Saving...' : isEditing() ? 'Update' : 'Create' }}
             </BtnPrimary>
         </template>
     </Modal>
