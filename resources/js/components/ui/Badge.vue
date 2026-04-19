@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots } from 'vue';
+import { computed } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -31,14 +31,6 @@ const variantClasses = computed(() => {
         amber: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     };
     return classes[props.variant] || classes.primary;
-});
-
-const formattedText = computed(() => {
-    const text = (useSlots().default?.()[0]?.children as string) || '';
-    if (props.capitalize) {
-        return text.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-    }
-    return text.replace(/_/g, ' ');
 });
 
 const sizeClasses = computed(() => {
@@ -77,6 +69,6 @@ const dotColorClasses = computed(() => {
         ]"
     >
         <span v-if="dot" :class="['h-1.5 w-1.5 rounded-full', dotColorClasses]"></span>
-        {{ formattedText }}
+        <slot />
     </span>
 </template>
