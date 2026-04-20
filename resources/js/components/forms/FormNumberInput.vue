@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const inputClasses = computed(() => [
-    'block w-full rounded-md border border-divider px-3 py-2 text-sm text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+    'block w-full rounded-md border border-divider px-3 py-2 text-sm text-foreground',
     props.variant === 'canvas' ? 'bg-canvas' : 'bg-surface',
     props.error && 'border-danger',
 ]);
@@ -33,6 +33,14 @@ function focus() {
 
 defineExpose({ focus });
 </script>
+
+<style scoped>
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+</style>
 
 <template>
     <input
