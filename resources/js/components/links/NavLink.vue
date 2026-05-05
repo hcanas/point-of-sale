@@ -18,16 +18,16 @@ const props = withDefaults(defineProps<Props>(), {
     <Link
         :href="href"
         :class="[
-            'flex items-center rounded-md px-3 py-3 text-sm font-medium transition-colors outline-none',
+            'flex items-center justify-between rounded-md px-3 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary-600',
             active ? 'bg-primary-600 text-white shadow-sm' : 'text-foreground-soft hover:bg-hover hover:text-foreground',
         ]"
     >
-        <component v-if="icon" :is="icon" class="h-5 w-5 shrink-0" />
-        <span class="ml-3">
-            <slot />
+        <span class="flex items-center">
+            <component v-if="icon" :is="icon" class="h-5 w-5 shrink-0" />
+            <span class="ml-3">
+                <slot />
+            </span>
         </span>
-        <kbd v-if="keybind" class="ml-auto rounded border border-divider bg-canvas px-1.5 py-0.5 text-xs text-foreground-soft">
-            {{ keybind }}
-        </kbd>
+        <kbd v-if="keybind" class="ml-2">{{ keybind }}</kbd>
     </Link>
 </template>

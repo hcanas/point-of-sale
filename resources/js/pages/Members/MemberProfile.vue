@@ -113,8 +113,8 @@ useKeybinds([
                                 <Badge :variant="member.is_active ? 'success' : 'danger'" :dot="true">
                                     {{ member.is_active ? 'Active' : 'Inactive' }}
                                 </Badge>
-                                <Badge :variant="member.balance > 0 ? 'warning' : 'success'" :dot="true">
-                                    {{ member.balance > 0 ? 'Has Balance' : 'No Balance' }}
+                                <Badge :variant="member.outstanding_balance > 0 ? 'warning' : 'success'" :dot="true">
+                                    {{ member.outstanding_balance > 0 ? 'Has Outstanding Balance' : 'No Outstanding Balance' }}
                                 </Badge>
                             </div>
                         </div>
@@ -123,9 +123,9 @@ useKeybinds([
                     <div class="hidden h-14 w-px bg-divider sm:block"></div>
 
                     <div class="min-w-[140px]">
-                        <p class="text-sm font-medium text-foreground-soft">Balance</p>
-                        <p :class="['mt-1 text-xl font-bold tabular-nums', member.balance > 0 ? 'text-danger' : 'text-foreground']">
-                            {{ formatCurrency(member.balance) }}
+                        <p class="text-sm font-medium text-foreground-soft">Outstanding Balance</p>
+                        <p :class="['mt-1 text-xl font-bold tabular-nums', member.outstanding_balance > 0 ? 'text-danger' : 'text-foreground']">
+                            {{ formatCurrency(member.outstanding_balance) }}
                         </p>
                     </div>
 

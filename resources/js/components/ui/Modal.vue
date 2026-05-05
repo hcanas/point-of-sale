@@ -88,7 +88,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 
         <button
             type="button"
-            class="absolute right-4 top-4 rounded-md p-1 text-foreground-soft hover:bg-hover hover:text-foreground"
+            class="absolute right-4 top-4 rounded-md p-1 text-foreground-soft hover:bg-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary-600"
             @click="emit('close')"
         >
             <X class="h-5 w-5" />

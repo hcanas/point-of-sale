@@ -25,7 +25,7 @@ const handleChange = (e: Event) => {
         :id="id"
         :value="modelValue"
         @change="handleChange"
-        class="w-full rounded-md border border-divider bg-surface px-3 py-2 text-sm text-foreground"
+        class="w-full rounded-md border border-divider bg-surface px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
     >
         <option v-for="option in options" :key="option.value" :value="option.value">
             {{ option.label }}

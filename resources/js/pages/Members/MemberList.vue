@@ -152,7 +152,7 @@ const closeImportModal = () => {
                     :columns="[
                         { key: 'id', label: 'ID' },
                         { key: 'last_name', label: 'Name', sortable: true, width: 'fill' },
-                        { key: 'balance', label: 'Balance', align: 'right', sortable: true },
+                        { key: 'outstanding_balance', label: 'Outstanding Balance', align: 'right', sortable: true },
                         { key: 'is_active', label: 'Status' },
                     ]"
                     :data="members"
@@ -166,7 +166,7 @@ const closeImportModal = () => {
                             <Badge v-if="isNewMember(row)" variant="primary" size="sm">New</Badge>
                         </div>
                     </template>
-                    <template #cell-balance="{ value }">
+                    <template #cell-outstanding_balance="{ value }">
                         <span
                             :class="[
                                 'text-foreground',

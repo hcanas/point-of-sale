@@ -34,7 +34,7 @@ class MemberImportController extends Controller
             fclose($handle);
 
             throw ValidationException::withMessages([
-                'csv_file' => 'Invalid CSV header. Expected: last_name, first_name, middle_name, name_extension, address, tin_number, balance, share_capital',
+                'csv_file' => 'Invalid CSV header. Expected: last_name, first_name, middle_name, name_extension, address, tin_number, outstanding_balance, share_capital',
             ]);
         }
 
@@ -54,7 +54,7 @@ class MemberImportController extends Controller
             $nameExtension = trim($data[3]) ?: null;
             $address = trim($data[4]) ?: null;
             $tinNumber = trim($data[5]) ?: null;
-            $balance = isset($data[6]) && trim($data[6]) !== '' ? floatval($data[6]) : 0;
+            $outstandingBalance = isset($data[6]) && trim($data[6]) !== '' ? floatval($data[6]) : 0;
             $shareCapital = isset($data[7]) && trim($data[7]) !== '' ? floatval($data[7]) : 0;
 
             if (empty($lastName) || empty($firstName)) {
@@ -85,19 +85,19 @@ class MemberImportController extends Controller
                 'name_extension' => $nameExtension,
                 'address' => $address,
                 'tin_number' => $tinNumber,
-                'balance' => $balance,
+                'outstanding_balance' => $outstandingBalance,
                 'share_capital' => $shareCapital,
                 'is_active' => true,
             ]);
 
-            if ($balance != 0) {
+            if ($outstandingBalance != 0) {
                 MemberLedger::create([
                     'member_id' => $member->id,
-                    'amount' => $balance,
-                    'balance_after' => $balance,
+                    'amount' => $outstandingBalance,
+                    'balance_after' => $outstandingBalance,
                     'reference_type' => MemberLedgerType::Initial,
                     'reference_id' => null,
-                    'notes' => 'Initial balance from CSV import',
+                    'notes' => 'Initial outstanding balance from CSV import',
                 ]);
             }
 
@@ -122,7 +122,7 @@ class MemberImportController extends Controller
 
         $normalized = array_map('strtolower', array_map('trim', $header));
 
-        $expected = ['last_name', 'first_name', 'middle_name', 'name_extension', 'address', 'tin_number', 'balance', 'share_capital'];
+        $expected = ['last_name', 'first_name', 'middle_name', 'name_extension', 'address', 'tin_number', 'outstanding_balance', 'share_capital'];
 
         for ($i = 0; $i < count($expected); $i++) {
             if (! isset($normalized[$i]) || $normalized[$i] !== $expected[$i]) {

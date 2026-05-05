@@ -20,7 +20,7 @@ class Member extends Model
         'phone',
         'address',
         'is_active',
-        'balance',
+        'outstanding_balance',
         'share_capital',
         'tin_number',
     ];
@@ -40,7 +40,7 @@ class Member extends Model
     {
         return [
             'is_active' => 'boolean',
-            'balance' => 'decimal:2',
+            'outstanding_balance' => 'decimal:2',
             'share_capital' => 'decimal:2',
         ];
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const model = defineModel<string | number>();
 
@@ -17,6 +17,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     variant: 'default',
     error: false,
+    step: '0.01',
 });
 
 const inputClasses = computed(() => [
@@ -26,6 +27,35 @@ const inputClasses = computed(() => [
 ]);
 
 const inputRef = ref<HTMLInputElement | null>(null);
+const inputValue = ref('');
+
+// Sync inputValue from model (when not focused)
+watch(
+    () => model.value,
+    (newValue) => {
+        if (document.activeElement !== inputRef.value) {
+            const num = typeof newValue === 'string' ? parseFloat(newValue) : newValue;
+            inputValue.value = num !== undefined && !isNaN(num) ? num.toFixed(2) : '';
+        }
+    },
+    { immediate: true },
+);
+
+function handleBlur() {
+    const num = parseFloat(inputValue.value);
+    if (!isNaN(num)) {
+        const formatted = num.toFixed(2);
+        inputValue.value = formatted;
+        model.value = formatted;
+    } else {
+        inputValue.value = '';
+        model.value = '';
+    }
+}
+
+function handleFocus() {
+    inputValue.value = (model.value as string) || '';
+}
 
 function focus() {
     inputRef.value?.focus();
@@ -46,13 +76,15 @@ input::-webkit-outer-spin-button {
     <input
         :id="id"
         ref="inputRef"
-        v-model="model"
+        v-model="inputValue"
         type="number"
         :min="min"
         :max="max"
         :step="step"
         :required="required"
-        :placeholder="placeholder"
+        :placeholder="placeholder || '0.00'"
         :class="inputClasses"
+        @blur="handleBlur"
+        @focus="handleFocus"
     />
 </template>

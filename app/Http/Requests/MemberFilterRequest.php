@@ -6,7 +6,7 @@ class MemberFilterRequest extends FilterRequest
 {
     protected function allowedSorts(): array
     {
-        return ['id', 'first_name', 'last_name', 'balance', 'created_at'];
+        return ['id', 'first_name', 'last_name', 'outstanding_balance', 'created_at'];
     }
 
     protected function defaultSort(): string

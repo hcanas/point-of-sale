@@ -4,6 +4,7 @@ export interface PersonName {
     last_name: string;
     name_extension: string | null;
     full_name?: string;
+    formal_name?: string;
 }
 
 export interface Auth {

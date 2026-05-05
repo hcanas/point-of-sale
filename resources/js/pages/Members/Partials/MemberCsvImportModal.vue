@@ -28,7 +28,7 @@ interface MemberPreview {
     name_extension?: string;
     address: string;
     tin_number?: string;
-    balance: number;
+    outstanding_balance: number;
     share_capital: number;
 }
 
@@ -36,7 +36,16 @@ const preview = ref<MemberPreview[]>([]);
 
 const hasFile = computed(() => selectedFile.value !== null);
 
-const EXPECTED_HEADERS = ['last_name', 'first_name', 'middle_name', 'name_extension', 'address', 'tin_number', 'balance', 'share_capital'];
+const EXPECTED_HEADERS = [
+    'last_name',
+    'first_name',
+    'middle_name',
+    'name_extension',
+    'address',
+    'tin_number',
+    'outstanding_balance',
+    'share_capital',
+];
 
 const validateHeader = (header: string[]): boolean => {
     if (header.length < 8) {
@@ -130,7 +139,7 @@ const parsePreview = (file: File) => {
                 name_extension: cols[3] || undefined,
                 address: cols[4] || '',
                 tin_number: cols[5] || undefined,
-                balance: parseFloat(cols[6]) || 0,
+                outstanding_balance: parseFloat(cols[6]) || 0,
                 share_capital: parseFloat(cols[7]) || 0,
             };
         });
@@ -179,7 +188,7 @@ const handleSubmit = () => {
 
 const downloadTemplate = () => {
     const csv =
-        'last_name,first_name,middle_name,name_extension,address,tin_number,balance,share_capital\nDoe,John,Michael,Jr,123 Main St,123-456-789,0.00,1000.00';
+        'last_name,first_name,middle_name,name_extension,address,tin_number,outstanding_balance,share_capital\nDoe,John,Michael,Jr,123 Main St,123-456-789,0.00,1000.00';
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -202,10 +211,12 @@ const downloadTemplate = () => {
         <div class="space-y-4">
             <div class="rounded-md bg-canvas p-3 text-sm text-foreground-soft">
                 <p class="font-medium text-foreground">Required CSV Format:</p>
-                <p class="font-mono text-xs">last_name, first_name, middle_name, name_extension, address, tin_number, balance, share_capital</p>
+                <p class="font-mono text-xs">
+                    last_name, first_name, middle_name, name_extension, address, tin_number, outstanding_balance, share_capital
+                </p>
                 <p class="mt-1 text-xs">
                     <strong>Required:</strong> last_name, first_name, address. <strong>Optional:</strong> middle_name, name_extension, tin_number,
-                    balance, share_capital.
+                    outstanding_balance, share_capital.
                 </p>
             </div>
 
@@ -239,7 +250,7 @@ const downloadTemplate = () => {
                                 <th class="px-3 py-2 text-left font-medium whitespace-nowrap">Name Extension</th>
                                 <th class="px-3 py-2 text-left font-medium whitespace-nowrap">Address</th>
                                 <th class="px-3 py-2 text-right font-medium whitespace-nowrap">TIN Number</th>
-                                <th class="px-3 py-2 text-right font-medium whitespace-nowrap">Balance</th>
+                                <th class="px-3 py-2 text-right font-medium whitespace-nowrap">Outstanding Balance</th>
                                 <th class="px-3 py-2 text-right font-medium whitespace-nowrap">Share Capital</th>
                             </tr>
                         </thead>
@@ -251,7 +262,7 @@ const downloadTemplate = () => {
                                 <td class="px-3 py-2 whitespace-nowrap text-foreground-soft">{{ row.name_extension || '-' }}</td>
                                 <td class="px-3 py-2 whitespace-nowrap">{{ row.address }}</td>
                                 <td class="px-3 py-2 text-right whitespace-nowrap text-foreground-soft">{{ row.tin_number || '-' }}</td>
-                                <td class="px-3 py-2 text-right whitespace-nowrap">{{ row.balance.toFixed(2) }}</td>
+                                <td class="px-3 py-2 text-right whitespace-nowrap">{{ row.outstanding_balance.toFixed(2) }}</td>
                                 <td class="px-3 py-2 text-right whitespace-nowrap">{{ row.share_capital.toFixed(2) }}</td>
                             </tr>
                         </tbody>

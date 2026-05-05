@@ -19,7 +19,7 @@ const model = defineModel<string | null>();
 const inputRef = ref<HTMLInputElement | null>(null);
 
 const inputClasses = computed(() => [
-    'block h-9 w-full rounded-md border border-divider px-3 text-sm text-foreground',
+    'block h-9 w-full rounded-md border border-divider px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-600',
     props.variant === 'canvas' ? 'bg-canvas' : 'bg-surface',
     props.error && 'border-danger',
 ]);

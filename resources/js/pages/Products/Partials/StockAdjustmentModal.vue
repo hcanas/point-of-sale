@@ -117,7 +117,7 @@ const close = () => emit('close');
                     type="button"
                     @click="adjustmentType = 'in'"
                     :class="[
-                        'flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-success',
+                        'flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2',
                         adjustmentType === 'in'
                             ? 'border-success bg-success/10 text-success'
                             : 'border-divider bg-canvas text-foreground-soft hover:text-foreground',
@@ -130,7 +130,7 @@ const close = () => emit('close');
                     type="button"
                     @click="adjustmentType = 'out'"
                     :class="[
-                        'flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-danger',
+                        'flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-danger',
                         adjustmentType === 'out'
                             ? 'border-danger bg-danger/10 text-danger'
                             : 'border-divider bg-canvas text-foreground-soft hover:text-foreground',

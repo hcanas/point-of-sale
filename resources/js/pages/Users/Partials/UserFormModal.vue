@@ -162,7 +162,7 @@ const close = () => emit('close');
                 <select
                     id="role"
                     v-model="form.role"
-                    class="block h-9 w-full rounded-md border border-divider bg-canvas px-3 text-sm text-foreground outline-none focus-visible:ring-primary-600"
+                    class="block h-9 w-full rounded-md border border-divider bg-canvas px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-600"
                 >
                     <option value="manager">Manager</option>
                     <option value="inventory">Inventory</option>
@@ -177,7 +177,7 @@ const close = () => emit('close');
                     id="is_active"
                     v-model="form.is_active"
                     type="checkbox"
-                    class="mt-0.5 h-4 w-4 rounded border-divider text-primary-600 focus:ring-primary-600"
+                    class="mt-0.5 h-4 w-4 rounded border-divider text-primary-600 focus-visible:ring-2 focus-visible:ring-primary-600"
                 />
                 <div class="flex flex-col">
                     <FormLabel for="is_active" class="!mt-0">Active</FormLabel>

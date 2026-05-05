@@ -15,7 +15,7 @@ enum MemberLedgerType: string
             self::Purchase => 'Purchase',
             self::Payment => 'Payment',
             self::Adjustment => 'Adjustment',
-            self::Initial => 'Initial Balance',
+            self::Initial => 'Initial Outstanding Balance',
         };
     }
 }

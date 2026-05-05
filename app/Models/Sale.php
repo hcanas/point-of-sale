@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 class Sale extends Model
 {
@@ -31,6 +32,16 @@ class Sale extends Model
         'amount_tendered' => 'decimal:2',
         'change_given' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Sale $sale): void {
+            $date = now()->format('Ymd');
+            $count = Sale::whereDate('created_at', now()->toDateString())->count() + 1;
+            $sale->reference_number = "SL-{$date}-".str_pad($count, 3, '0', STR_PAD_LEFT);
+            $sale->created_by = Auth::id();
+        });
+    }
 
     public function member(): BelongsTo
     {

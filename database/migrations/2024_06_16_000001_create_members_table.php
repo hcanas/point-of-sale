@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->decimal('balance', 12, 2)->default(0);
+            $table->decimal('outstanding_balance', 12, 2)->default(0);
             $table->decimal('share_capital', 12, 2)->default(0);
             $table->string('tin_number')->nullable();
             $table->auditable();

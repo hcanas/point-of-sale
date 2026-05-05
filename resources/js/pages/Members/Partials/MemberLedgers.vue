@@ -7,7 +7,7 @@ import { useFormatter } from '@/composables/useFormatter';
 import { useQueryStrings } from '@/composables/useQueryStrings';
 import type { MemberLedger } from '@/types/member';
 import type { PaginatedData } from '@/types/pagination';
-import { ArrowDown, ArrowUp, Search } from 'lucide-vue-next';
+import { Search } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps<{
@@ -50,11 +50,9 @@ const getAmountDisplay = (ledger: MemberLedger) => {
 };
 
 const getBalanceDisplay = (ledger: MemberLedger) => {
-    const isPositive = ledger.balance_after >= 0;
     return {
         text: formatCurrency(ledger.balance_after),
-        class: isPositive ? 'text-danger' : 'text-success',
-        icon: isPositive ? ArrowUp : ArrowDown,
+        class: ledger.balance_after > 0 ? 'text-danger' : ledger.balance_after < 0 ? 'text-success' : 'text-foreground',
     };
 };
 </script>
@@ -95,12 +93,9 @@ const getBalanceDisplay = (ledger: MemberLedger) => {
                 <span class="font-semibold text-foreground tabular-nums">{{ getAmountDisplay(row) }}</span>
             </template>
             <template #cell-balance_after="{ row }">
-                <template v-for="display in [getBalanceDisplay(row)]" :key="row.id">
-                    <span :class="['font-semibold tabular-nums', display.class]">
-                        <component :is="display.icon" class="mr-1 inline h-4 w-4" />
-                        {{ display.text }}
-                    </span>
-                </template>
+                <span :class="['font-semibold tabular-nums', getBalanceDisplay(row).class]">
+                    {{ getBalanceDisplay(row).text }}
+                </span>
             </template>
             <template #cell-creator="{ row }">
                 <UserNameLink v-if="row.creator" :user="row.creator" :return-to="currentUrl" />

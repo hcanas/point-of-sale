@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberImportController;
+use App\Http\Controllers\PointOfSaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImportController;
 use App\Http\Controllers\StockMovementController;
@@ -17,10 +18,12 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/pos', [PointOfSaleController::class, 'index'])->name('pos.index');
+    Route::post('/pos', [PointOfSaleController::class, 'store'])->name('pos.store');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
     Route::resource('users', UserController::class);
-    Route::resource('products', ProductController::class);
+    Route::resource('products', ProductController::class)->except(['store', 'update']);
     Route::post('/products/import', ProductImportController::class)->name('products.import-csv');
     Route::post('/products/{product}/stock-movements', [StockMovementController::class, 'store'])->name('products.stock-movements.store');
     Route::resource('members', MemberController::class)->except(['store', 'update']);

@@ -17,7 +17,7 @@ const { isDark, toggleTheme } = useTheme();
     <button
         @click="toggleTheme"
         :class="[
-            'group relative flex items-center rounded-md text-foreground-soft transition-colors hover:text-foreground outline-none',
+            'group relative flex items-center rounded-md text-foreground-soft transition-colors hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary-600',
             variant === 'default'
                 ? 'w-full justify-between border border-divider bg-canvas px-3 py-2'
                 : 'h-9 w-9 items-center justify-center hover:bg-hover',

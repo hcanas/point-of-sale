@@ -5,7 +5,7 @@ export interface Member extends Auditable, PersonName, Timestamps {
     phone: string | null;
     address: string | null;
     is_active: boolean;
-    balance: number;
+    outstanding_balance: number;
     share_capital: number;
     tin_number: string | null;
     deletable?: boolean;

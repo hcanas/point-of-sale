@@ -97,7 +97,7 @@ useKeybinds([
                     :href="logout.url()"
                     method="post"
                     as="button"
-                    class="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-foreground-soft outline-none hover:bg-hover hover:text-foreground focus-visible:ring-primary-600"
+                    class="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-foreground-soft outline-none hover:bg-hover hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary-600"
                 >
                     <LogOut class="h-5 w-5 shrink-0" />
                     <span class="ml-3">Log out</span>

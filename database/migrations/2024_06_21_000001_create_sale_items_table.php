@@ -14,6 +14,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Sale::class)->constrained()->restrictOnDelete();
             $table->foreignIdFor(Product::class)->nullable()->constrained()->restrictOnDelete();
+            $table->string('product_name');
             $table->integer('quantity');
             $table->decimal('unit_price', 12, 2);
             $table->decimal('subtotal', 12, 2);
